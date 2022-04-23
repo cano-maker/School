@@ -206,7 +206,7 @@ namespace School.Web.Controllers
                     city.Neighborhoods.Add(neighborhood);
                     _context.Update(city);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction($"{nameof(Details)}", new { id = city.Id });
+                    return RedirectToAction($"{nameof(Details)}", "Cities", new { id = city.Id });
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
