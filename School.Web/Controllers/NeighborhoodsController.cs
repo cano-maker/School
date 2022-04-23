@@ -156,6 +156,28 @@ namespace School.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> DeleteNeighborhood(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            Neighborhood neighborhood = await _context.Neighborhoods
+                .Include(d => d.Students)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (neighborhood == null)
+            {
+                return NotFound();
+            }
+            City city = await _context.Cities
+                .FirstOrDefaultAsync(c => c.Neighborhoods.FirstOrDefault(n => n.Id == neighborhood.Id) != null);
+            _context.Neighborhoods.Remove(neighborhood);
+            await _context.SaveChangesAsync();
+            //return RedirectToAction($"{nameof(Details)}/{country.Id}");
+            return RedirectToAction($"{nameof(Details)}","Cities", new { id = city.Id });
+        }
+
         // POST: Neighborhoods/Delete/5
         //[HttpPost, ActionName("Delete")]
         //[ValidateAntiForgeryToken]
