@@ -250,5 +250,52 @@ namespace School.Web.Controllers
             return View(neighborhood);
         }
 
+        public async Task<IActionResult> EditNeighborhood(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            Neighborhood neighborhood = await _context.Neighborhoods.FindAsync(id);
+            if (neighborhood == null)
+            {
+                return NotFound();
+            }
+            City city = await _context.Cities.FirstOrDefaultAsync(c => c.Neighborhoods.FirstOrDefault(n => n.Id == neighborhood.Id) != null);
+            neighborhood.IdCity = city.Id;
+            return View(neighborhood);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditNeighborhood(Neighborhood neighborhood)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(neighborhood);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details),"Cities", new { id = neighborhood.IdCity }); ;
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "There are a record with the same name.");
+                    }
+                    else
+                    {
+
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+            }
+            return View(neighborhood);
+        }
+
     }
 }
