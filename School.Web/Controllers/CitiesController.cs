@@ -149,7 +149,9 @@ namespace School.Web.Controllers
                 return NotFound();
             }
             City city = await _context.Cities
-            .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(c => c.Neighborhoods)
+                .ThenInclude(n => n.Students)
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (city == null)
             {
                 return NotFound();
@@ -158,17 +160,6 @@ namespace School.Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
-        // POST: Cities/Delete/5
-        //[HttpPost, ActionName("Delete")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> DeleteConfirmed(int id)
-        //{
-        //    var city = await _context.Cities.FindAsync(id);
-        //    _context.Cities.Remove(city);
-        //    await _context.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-        //}
 
         private bool CityExists(int id)
         {
