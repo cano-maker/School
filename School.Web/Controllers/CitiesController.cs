@@ -34,6 +34,8 @@ namespace School.Web.Controllers
             }
 
             var city = await _context.Cities
+                .Include(_c => _c.Neighborhoods)
+                .ThenInclude(n => n.Students)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (city == null)
             {
@@ -172,5 +174,6 @@ namespace School.Web.Controllers
         {
             return _context.Cities.Any(e => e.Id == id);
         }
+
     }
 }

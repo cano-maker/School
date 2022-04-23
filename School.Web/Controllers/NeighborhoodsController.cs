@@ -171,5 +171,62 @@ namespace School.Web.Controllers
         {
             return _context.Neighborhoods.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> AddNeighborhood(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            City city = await _context.Cities.FindAsync(id);
+            if (city == null)
+            {
+                return NotFound();
+            }
+            Neighborhood model = new Neighborhood { IdCity = city.Id };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddNeighborhood(Neighborhood neighborhood)
+        {
+            if (ModelState.IsValid)
+            {
+                City city = await _context.Cities
+                .Include(c => c.Neighborhoods)
+                .FirstOrDefaultAsync(c => c.Id == neighborhood.IdCity);
+                if (city == null)
+                {
+                    return NotFound();
+                }
+                try
+                {
+                    neighborhood.Id = 0;
+                    city.Neighborhoods.Add(neighborhood);
+                    _context.Update(city);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction($"{nameof(Details)}", new { id = city.Id });
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    if (dbUpdateException.InnerException.Message.Contains("duplicate"))
+                    {
+                        ModelState.AddModelError(string.Empty, "There are a record with the same name.");
+                    }
+                    else
+                    {
+
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+            }
+            return View(neighborhood);
+        }
+
     }
 }
