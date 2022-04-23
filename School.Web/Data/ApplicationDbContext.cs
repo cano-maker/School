@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using School.Web.Models;
 
 
@@ -27,19 +23,17 @@ namespace School.Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
-
-
             modelBuilder.Entity<Student>()
                 .HasIndex(t => t.Name)
                 .IsUnique();
 
             modelBuilder.Entity<City>()
-            .HasIndex(t => t.Name)
-            .IsUnique();
+                .HasIndex(t => t.Name)
+                .IsUnique();
 
             modelBuilder.Entity<Neighborhood>()
-            .HasIndex(t => t.Name)
-            .IsUnique();
+                .HasIndex(t => t.Name)
+                .IsUnique();
 
         }
     }
